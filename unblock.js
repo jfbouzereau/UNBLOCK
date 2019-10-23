@@ -162,13 +162,6 @@ function load_game(filename) {
 		exitcol = t.exitcol;
 		pieces = t.pieces;
 
-		grid = [];
-		for(var row=0;row<nrow;row++) {
-			grid[row] = [];
-			for(var col=0;col<ncol;col++) 
-				grid[row][col] = -1;
-		}
-
 		set_grid();
 	}
 	catch(err) {
@@ -180,6 +173,14 @@ function load_game(filename) {
 // *********************************************************************
 
 function set_grid() {
+
+	grid = [];
+
+	for(var row=0;row<nrow;row++) {
+		grid[row] = [];
+		for(var col=0;col<ncol;col++) 
+			grid[row][col] = -1;
+	}
 
 	for(var k=0;k<pieces.length;k++) {
 		var p = pieces[k];
