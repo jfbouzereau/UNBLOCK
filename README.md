@@ -2,7 +2,10 @@
 
 This node program solves `unblock me` types of puzzle :
 
-![screenshot](601.png)
+![screenshot](601.png) ![screenshot](1f.png)
+
+It does not try to optimize the search, and use brute force
+algorithm with backtracking.
 
 ## PREPARATION
 
@@ -45,6 +48,8 @@ The game must be prepared in a json file. Example `601.json` :
 	`dir` specify if the piece is horizontal (h) or vertical (v)
   
 	`row` and `col` specify the left-most or top-most position of the piece
+	
+	`fix` is set to true if the piece cannot move
 
 ## EXECUTION
 

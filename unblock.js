@@ -38,7 +38,8 @@ function run() {
 	for(var pid=0;pid<pieces.length;pid++) {
 
 		var piece = pieces[pid];
-		
+		if(piece.fix) continue;
+	
 		var row = piece.row;
 		var col = piece.col;
 
