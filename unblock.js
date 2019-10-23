@@ -201,9 +201,9 @@ function set_grid() {
 // *********************************************************************
 
 function dump_grid(pid) {
-	for(var i=0;i<6;i++) {
+	for(var i=0;i<nrow;i++) {
 		var s = "";	
-		for(var j=0;j<6;j++)
+		for(var j=0;j<ncol;j++)
 			s += f(grid[i][j]);
 		console.log(s);
 	}
