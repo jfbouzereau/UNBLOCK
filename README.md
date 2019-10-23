@@ -13,7 +13,6 @@ The game must be prepared in a json file. Example `601.json` :
 	"ncol":6,
 	"exitrow":2,
 	"exitcol":4,	
-	"exitside":"r",
 	"pieces":[
 		{"dir":"h","len":2,"row":2,"col":0},
 		{"dir":"h","len":2,"row":0,"col":0},	
@@ -38,8 +37,6 @@ The game must be prepared in a json file. Example `601.json` :
 * `exitrow` is the row the target must reach
 
 * `exitcol` is the column the target must reach
-
-* `exitside` if the side where the target must exit
 
 * `pieces` is the array of pieces
 

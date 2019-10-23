@@ -7,7 +7,6 @@ var nrow;
 var ncol;
 var exitrow;
 var exitcol;
-var exitside;
 
 var grid;
 var visited = {};
@@ -122,13 +121,13 @@ function win() {
 	if(pieces[0].dir=="h") {
 		for(var i=0;i<pieces[0].len;i++) {
 			if(grid[row][col]!=0) return;
-			col += exitside=="r" ? +1 : -1;
+			col ++;
 		}
 	}
 	else if(pieces[0].dir=="v") { 
 		for(var i=0;i<pieces[0].col;i++) {
 			if(grid[row][col]!=0) return;
-			row += exitside=="t" ? -1 : +1;
+			row ++;
 		}
 	}
 
@@ -155,14 +154,11 @@ function load_game(filename) {
 		if(!("exitcol" in t)) abort("Exit-column not specified");
 		if(!t.pieces) abort("Pieces not specified");	
 
-		if(!("exitside" in t)) 
-			t.exitside = t.pieces[0].dir=="h" ? "r" : "t";
 	
 		nrow = t.nrow;
 		ncol = t.ncol;
 		exitrow = t.exitrow;
 		exitcol = t.exitcol;
-		exitside = t.exitside;
 		pieces = t.pieces;
 
 		grid = [];
