@@ -232,6 +232,8 @@ const DIRS = {l:"left",r:"right",t:"top",b:"bottom"};
 
 if(!sol) return;
 
+var kmove = 0;
+
 pieces = savedpieces;
 
 set_grid();		// reset grid from beginning
@@ -242,7 +244,10 @@ for(var i=0;i<sol.length;i++) {
 	var pid = parseInt(sol[i]);
 	var dir = sol[i][sol[i].length-1];
 
-	console.log(i+1+" : piece "+pid+" to "+DIRS[dir]);
+	if(sol[i]!=sol[i+1]) {
+		kmove++;
+		console.log(kmove+" : piece "+pid+" to "+DIRS[dir]);
+	}
 
 	var len = pieces[pid].len;
 	var row = pieces[pid].row;
@@ -273,8 +278,9 @@ for(var i=0;i<sol.length;i++) {
 			grid[row+len][col] = pid;
 			break;
 	}	
-		
-	dump_grid(pid);		
+	
+	if(sol[i]!=sol[i+1])	
+		dump_grid(pid);		
 }
 
 
