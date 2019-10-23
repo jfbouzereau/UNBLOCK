@@ -6,7 +6,7 @@ This node program solves `unblock me` types of puzzle :
 
 ## PREPARATION
 
-The game must be prepared in a json file. Example :
+The game must be prepared in a json file. Example `601.json` :
 ```
 {
 	"nrow":6,
@@ -50,7 +50,7 @@ The game must be prepared in a json file. Example :
 
 Run
 ```
-node unblock.js
+node unblock.js 601.json
 ```
 
 If everything is OK, the solution is displayed one step after each other.
