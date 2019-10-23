@@ -2,7 +2,7 @@
 
 This node program solves `unblock me` types of puzzle :
 
-![screenshot](601).png)
+![screenshot](601.png)
 
 ## PREPARATION
 
