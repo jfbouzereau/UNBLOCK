@@ -3,7 +3,6 @@
 	"ncol":6,
 	"exitrow":2,
 	"exitcol":4,	
-	"exitside":"r",
 	"pieces":[
 		{"dir":"h","len":2,"row":2,"col":0},
 		{"dir":"h","len":2,"row":0,"col":0},	
