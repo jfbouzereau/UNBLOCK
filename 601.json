@@ -1,0 +1,21 @@
+{
+	"nrow":6,
+	"ncol":6,
+	"exitrow":2,
+	"exitcol":4,	
+	"pieces":[
+		{"dir":"h","len":2,"row":2,"col":0},
+		{"dir":"h","len":2,"row":0,"col":0},	
+		{"dir":"v","len":2,"row":0,"col":3},
+		{"dir":"h","len":2,"row":0,"col":4},
+		{"dir":"h","len":3,"row":1,"col":0},
+		{"dir":"v","len":3,"row":1,"col":5},
+		{"dir":"v","len":2,"row":3,"col":0},
+		{"dir":"h","len":2,"row":3,"col":1},
+		{"dir":"h","len":2,"row":3,"col":3},
+		{"dir":"v","len":2,"row":4,"col":2},
+		{"dir":"h","len":3,"row":4,"col":3},		
+		{"dir":"h","len":2,"row":5,"col":0}
+	]
+}
+
