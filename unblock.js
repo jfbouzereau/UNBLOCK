@@ -122,24 +122,9 @@ function run() {
 // *********************************************************************
 
 function win() {
-	
-	var row = exitrow;
-	var col = exitcol;
-	
-	if(pieces[0].dir=="h") {
-		for(var i=0;i<pieces[0].len;i++) {
-			if(grid[row][col]!=0) return;
-			col ++;
-		}
-	}
-	else if(pieces[0].dir=="v") { 
-		for(var i=0;i<pieces[0].col;i++) {
-			if(grid[row][col]!=0) return;
-			row ++;
-		}
-	}
 
-	// winning position
+	var ok = (pieces[0].row==exitrow) && (pieces[0].col==exitcol);	
+	if(!ok) return;
 
 	if(!sol)
 		sol = game.slice();
@@ -225,12 +210,8 @@ function dump_grid(pid) {
 
 		var r = ""+x;
 		while(r.length<2) r = " "+r;
-		
-		if(pid==x)
-			return " "+GREEN+r+RESET;
-		else
-		
-			return " "+r;
+	
+		return (pid==x) ? " "+GREEN+r+RESET : " "+r;	
 	}
 }
 
