@@ -227,6 +227,18 @@ function onparams() {
 
 function onexport() {
 
+	var text = create_json();
+
+	var w = window.open("");
+	var doc = w.document;
+	doc.write("<pre>\n"+text+"\n</pre>\n");
+
+}
+
+//***********************************************************
+
+function create_json() {
+
 	var text = '';
 	put('{');
 	put('"nrow":'+nrow+',');
@@ -242,16 +254,14 @@ function onexport() {
 		piece.col = parseInt(els[i].dataset.col);
 		piece.len = parseInt(els[i].dataset.len);
 		piece.dir = els[i].dataset.dir;
-		put(JSON.stringify(piece)+',');
+		var term = (i==els.length-1) ? '':',';
+		put(JSON.stringify(piece)+term);
 	}
 
 	put(']');
 	put('}');
 
-
-	var w = window.open("");
-	var doc = w.document;
-	doc.write("<pre>"+text+"</pre>");
+	return text;
 
 	function put(s) {
 		text += s+"\n";
@@ -261,7 +271,56 @@ function onexport() {
 //***********************************************************
 
 function onrun() {
-	alert("Not yet implemented !");
+
+	var config = create_json();
+
+	var worker = new Worker("unblock.js");
+	worker.postMessage(config);
+
+	worker.onmessage = function(event) {
+		if(event.data.error)
+			alert(event.data.error);
+		else
+			play(event.data.solution);	
+	}
+}
+
+//***********************************************************
+
+function play(solution) {
+
+	var els = document.querySelectorAll(".piece");
+
+	var k = -1;
+	step();
+
+	function step() {
+		k++;
+		if(k>=solution.length) return;
+
+		var pid = parseInt(solution[k]);
+		var dir = solution[k][solution[k].length-1];
+
+		var el = els[pid];
+		var row = el.dataset.row;
+		var col = el.dataset.col;
+
+		switch(dir) {
+			case "l": col--; break;
+			case "r": col++; break;
+			case "t": row--; break;
+			case "b": row++; break;
+		}
+
+		el.dataset.row = row;
+		el.dataset.col = col;
+
+		el.style.top = (row*drow)+"px";
+		el.style.left = (col*dcol)+"px";
+
+		setTimeout(step,500);
+	}
+
 }
 
 //***********************************************************
@@ -299,6 +358,8 @@ function onup(event) {
 	
 	var dr = row2 - row1 + 1;
 	var dc = col2 - col1 + 1;
+
+	if((dr>1)&&(dc>1)) return;
 	
 	var len = dr > dc ? dr : dc;
 	var dir = (dr>1) ? "v" : "h";
