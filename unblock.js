@@ -5,6 +5,7 @@ const GREEN = "\x1b[42m";
 
 var nrow;
 var ncol;
+var exitside;
 var exitrow;
 var exitcol;
 
@@ -143,15 +144,13 @@ function load_game(filename) {
 
 		if(!("nrow" in t)) abort("Number of rows not specified");
 		if(!("ncol" in t)) abort("Number of columns not specified");
-		if(!("exitrow" in t)) abort("Exit-row not specified");
-		if(!("exitcol" in t)) abort("Exit-column not specified");
+		if(!("exit" in t)) abort("Exit side not specified");
 		if(!t.pieces) abort("Pieces not specified");	
 
 	
 		nrow = t.nrow;
 		ncol = t.ncol;
-		exitrow = t.exitrow;
-		exitcol = t.exitcol;
+		exitside = t.exit;
 		pieces = t.pieces;
 
 		set_grid();
@@ -191,6 +190,33 @@ function set_grid() {
 			col += (p.dir=="v") ? 0:1;
 		}
 	}	
+
+	switch(exitside) {
+		case "l":
+			exitrow = pieces[0].row;
+			exitcol = 0;
+			break;
+
+		case "r":
+			exitrow = pieces[0].row;
+			exitcol = nrow-pieces[0].len;
+			break;
+
+		case "t":
+			exitrow = 0;
+			exitcol = pieces[0].col;
+			break;
+
+		case "b":
+			exitrow = nrow-pieces[0].len;
+			exitcol = pieces[0].col;
+			break;		
+
+		default:
+			abort("Exit side invalid");
+			break;
+	}
+
 }
 
 // *********************************************************************

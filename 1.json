@@ -1,8 +1,7 @@
 {
 	"nrow":6,
 	"ncol":6,
-	"exitrow":2,
-	"exitcol":4,
+	"exit":"r",
 	"pieces":[
 		{"dir":"h","len":2,"row":2,"col":1},
 		{"dir":"v","len":3,"row":0,"col":0},
