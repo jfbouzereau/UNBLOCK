@@ -50,7 +50,8 @@ function run() {
 				grid[row][col] = -1;
 				grid[row][col+piece.len] = pid;
 				piece.col++;
-				win();
+				if(pid==0)
+					win();
 				run();
 
 				// cancel move
@@ -66,6 +67,8 @@ function run() {
 				grid[row][col+piece.len-1] = -1;
 				grid[row][col-1] = pid;	
 				piece.col--;
+				if(pid==0)
+					win();
 				run();
 
 				// cancel move
@@ -84,6 +87,8 @@ function run() {
 				grid[row][col] = -1;
 				grid[row+piece.len][col] = pid;
 				piece.row++;
+				if(pid==0)
+					win();
 				run();
 
 				// cancel move
@@ -99,6 +104,8 @@ function run() {
 				grid[row+piece.len-1][col] = -1;
 				grid[row-1][col] = pid;		
 				piece.row--;
+				if(pid==0)
+					win();
 				run();
 
 				// cancel move
