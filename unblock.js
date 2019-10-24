@@ -1,5 +1,3 @@
-const fs = require("fs");
-
 const RESET = "\x1b[0m";
 const GREEN = "\x1b[42m";
 
@@ -15,19 +13,31 @@ var game = [];		// current sequence of moves
 var sol = null;		// solution (shortest game so far)
 
 var pieces;
+var savedpieces;
 
-load_game(process.argv[2]);
+if(typeof(require)=="function") {
+	var fs = require("fs");
+	load_game(fs.readFileSync(process.argv[2]));
+} else 
+{
+	onmessage = function(event) {
+		load_game(event.data);
+	}
+}
 
-var savedpieces = pieces.slice();
-
-run();
-
-play();
 
 // *********************************************************************
 
 function run() {
+	var it = rungen();
+	while(1) {
+		var r = it.next();
+		if(r.done) break;
+		run();
+	}
+}
 
+function *rungen() {
 	// if config already encountered
 	var config = grid.join(",");
 	if(visited[config] && visited[config] <= game.length) return 
@@ -53,7 +63,7 @@ function run() {
 				piece.col++;
 				if(pid==0)
 					win();
-				run();
+				yield 0;
 
 				// cancel move
 				game.pop();
@@ -70,7 +80,7 @@ function run() {
 				piece.col--;
 				if(pid==0)
 					win();
-				run();
+				yield 0;
 
 				// cancel move
 				game.pop();
@@ -90,7 +100,7 @@ function run() {
 				piece.row++;
 				if(pid==0)
 					win();
-				run();
+				yield 0;
 
 				// cancel move
 				game.pop();
@@ -107,7 +117,7 @@ function run() {
 				piece.row--;
 				if(pid==0)
 					win();
-				run();
+				yield 0;
 
 				// cancel move
 				game.pop();
@@ -135,30 +145,29 @@ function win() {
 
 // *********************************************************************
 
-function load_game(filename) {
-	if(!filename) abort("Usage: node unblock.js <filename>");
+function load_game(content) {
 
-	try {
-		var t = fs.readFileSync(filename,"utf8");
-		t = JSON.parse(t);
+	var t = JSON.parse(content);
 
-		if(!("nrow" in t)) abort("Number of rows not specified");
-		if(!("ncol" in t)) abort("Number of columns not specified");
-		if(!("exit" in t)) abort("Exit side not specified");
-		if(!t.pieces) abort("Pieces not specified");	
+	if(!("nrow" in t)) abort("Number of rows not specified");
+	if(!("ncol" in t)) abort("Number of columns not specified");
+	if(!("exit" in t)) abort("Exit side not specified");
+	if(!t.pieces) abort("Pieces not specified");	
 
-	
-		nrow = t.nrow;
-		ncol = t.ncol;
-		exitside = t.exit;
-		pieces = t.pieces;
+	nrow = t.nrow;
+	ncol = t.ncol;
+	exitside = t.exit;
+	pieces = t.pieces;
 
-		set_grid();
-	}
-	catch(err) {
-		abort(err);
-	}
+	set_grid();
 
+	savedpieces = pieces.slice();		// save for replay
+	run();
+
+	if(typeof(postMessage)=="function") 
+		postMessage({solution:sol})
+	else	
+		play();
 }
 
 // *********************************************************************
@@ -244,6 +253,7 @@ function dump_grid(pid) {
 // *********************************************************************
 
 function play() {
+
 const DIRS = {l:"left",r:"right",t:"top",b:"bottom"};
 
 if(!sol) return;
@@ -305,8 +315,10 @@ for(var i=0;i<sol.length;i++) {
 // *********************************************************************
 
 function abort(msg) {
-	console.log(msg);
-	process.exit(1);
+	if(typeof(postMessage)=="function") 
+		postMessage({error:msg});
+	else
+		console.log(msg);
 }
 
 // *********************************************************************
