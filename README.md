@@ -1,13 +1,13 @@
 # UNBLOCK
 
-This node program solves `unblock me` types of puzzle :
+This javascript program solves `unblock me` types of puzzle :
 
 ![screenshot](601.png) ![screenshot](1f.png)
 
 It does not try to optimize the search, and uses brute force
 algorithm with backtracking.
 
-## PREPARATION
+## IN NODE.JS
 
 The game must be described in a json file. Example `601.json` :
 ```
@@ -293,3 +293,11 @@ Example :
   6  .  . 11 11  5
 -------------------------
 ```
+
+## IN THE BROWSER
+
+The game can be set on the screen :
+
+![browser](browser.png)
+
+Clicking the `Run` button will show the moves after a moment!
