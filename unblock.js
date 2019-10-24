@@ -28,16 +28,23 @@ if(typeof(require)=="function") {
 
 // *********************************************************************
 
-function run() {
-	var it = rungen();
+async function run() {
+
+	var g = rungen();
+	
+	var r;
+
 	while(1) {
-		var r = it.next();
+		r = g.next();
 		if(r.done) break;
-		run();
+		await run();
 	}
+
+	return Promise.resolve(0);
 }
 
 function *rungen() {
+
 	// if config already encountered
 	var config = grid.join(",");
 	if(visited[config] && visited[config] <= game.length) return 
@@ -145,7 +152,7 @@ function win() {
 
 // *********************************************************************
 
-function load_game(content) {
+async function load_game(content) {
 
 	var t = JSON.parse(content);
 
@@ -162,11 +169,14 @@ function load_game(content) {
 	set_grid();
 
 	savedpieces = pieces.slice();		// save for replay
-	run();
 
-	if(typeof(postMessage)=="function") 
-		postMessage({solution:sol})
-	else	
+	post({log:"RUNNING"});
+
+	await run();
+
+	post({log:"DONE!"});
+
+	if(!post({solution:sol}))
 		play();
 }
 
@@ -315,10 +325,24 @@ for(var i=0;i<sol.length;i++) {
 // *********************************************************************
 
 function abort(msg) {
-	if(typeof(postMessage)=="function") 
-		postMessage({error:msg});
-	else
+
+	if(!post({error:msg})) {
 		console.log(msg);
+		process.exit(1); 
+	}
+}
+
+// *********************************************************************
+
+function post(msg) {
+
+	if(typeof(postMessage)=="function") {
+		postMessage(msg);
+		return true;
+	}
+	else {
+		return false;
+	}
 }
 
 // *********************************************************************

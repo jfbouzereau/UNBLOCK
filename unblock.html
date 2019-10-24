@@ -85,7 +85,9 @@ body {
 .piece[data-pid="0"] {
 	background-color:#C00;
 }
-
+.piece.fixed {
+	background-color:#d1b056;
+}
 .commands {
 	position:absolute;
 	height:50px;
@@ -174,9 +176,13 @@ var dcol;
 var exitside;
 var npiece = 0;
 
+allow_drop();
+
 var content = document.querySelector("#game .content");
 
 show_page("params");
+
+document.querySelector("#game .content").addEventListener("click",onpiece);
 
 document.querySelector("#paramsbutton").addEventListener("click",onparams);
 
@@ -186,7 +192,97 @@ document.querySelector("#run").addEventListener("click",onrun);
 
 //***********************************************************
 
-function build_game() {
+function allow_drop() {
+	
+	var form = document.querySelector("#params .form");
+	form.addEventListener("dragover", function(event) {
+		event.preventDefault();
+		form.style.backgroundColor = "#8F8";
+	});	
+
+	form.addEventListener("drop", function(event) {
+		event.preventDefault();
+	
+		var file;
+	
+		if(event.dataTransfer.items)
+			file = event.dataTransfer.items[0].getAsFile();
+		else
+			file = event.dataTransfer.files[0];	
+
+		var reader = new FileReader();
+		reader.addEventListener("load",onread);
+		reader.readAsText(file);
+	});
+
+	function onread(event) {	
+		var text =  event.target.result;
+		load_json(JSON.parse(text));
+	}
+
+}
+
+//***********************************************************
+
+function load_json(config) {
+
+	var row1,row2,col1,col2;
+
+	nrow = config.nrow;
+	ncol = config.ncol;
+	exitside = config.exit;		
+
+	build_game(false);
+
+	for(var k=0;k<config.pieces.length;k++) {	
+		var piece = config.pieces[k];
+
+		var dir = piece.dir;
+		var len = piece.len;
+		var fix = piece.fix;
+
+		if(dir=="h") {
+			col1 = piece.col;
+			col2 = piece.col + len -1 ;
+
+			row1 = piece.row;
+			row2 = piece.row;
+			}
+		else
+			{
+			col1 = piece.col;
+			col2 = piece.col;
+
+			row1 = piece.row;
+			row2 = piece.row + len -1;
+			}
+
+		var el = document.createElement("div");
+		el.classList.add("piece");
+		if(fix) el.classList.add("fixed");
+		el.style.width = ((col2-col1+1)*dcol)+"px";
+		el.style.height = ((row2-row1+1)*drow)+"px";
+		el.style.top = (row1*drow)+"px";
+		el.style.left = (col1*dcol)+"px";
+		el.dataset.row = row1;
+		el.dataset.col = col1;
+		el.dataset.len = len;
+		el.dataset.dir = dir;	
+		if(fix)
+			el.dataset.fix =1;
+		el.dataset.pid = npiece++;
+		content.appendChild(el);
+
+		if(npiece==1)
+			create_exit(el);
+	}
+
+	show_page("game");
+}
+
+//***********************************************************
+
+function build_game(active) {
 	
 	drow = 80;
 	dcol = 80;
@@ -207,9 +303,11 @@ function build_game() {
 			content.appendChild(el);
 		}
 	}
-
-	document.body.addEventListener("mousedown",ondown);
-	document.body.addEventListener("mouseup",onup);
+	
+	if(active) {
+		document.body.addEventListener("mousedown",ondown);
+		document.body.addEventListener("mouseup",onup);
+	}
 }
 
 //***********************************************************
@@ -219,8 +317,17 @@ function onparams() {
 	ncol = 1*document.querySelector("#colselect").value;
 	exitside = document.querySelector("#exitselect").value;
 
-	build_game();
+	build_game(true);
 	show_page("game");
+}
+
+//***********************************************************
+
+function onpiece(event) {
+	var target = event.target;
+	if(target.className.indexOf("piece")<0) return;
+	target.classList.add("fixed");
+	target.dataset.fix = 1;
 }
 
 //***********************************************************
@@ -253,6 +360,7 @@ function create_json() {
 		piece.row = parseInt(els[i].dataset.row);
 		piece.col = parseInt(els[i].dataset.col);
 		piece.len = parseInt(els[i].dataset.len);
+		if(els[i].dataset.fix) piece.fix = 1;
 		piece.dir = els[i].dataset.dir;
 		var term = (i==els.length-1) ? '':',';
 		put(JSON.stringify(piece)+term);
@@ -272,6 +380,8 @@ function create_json() {
 
 function onrun() {
 
+	document.querySelector("#run").disabled = true;
+
 	var config = create_json();
 
 	var worker = new Worker("unblock.js");
@@ -280,6 +390,8 @@ function onrun() {
 	worker.onmessage = function(event) {
 		if(event.data.error)
 			alert(event.data.error);
+		else if(event.data.log)
+			console.log(event.data.log);
 		else
 			play(event.data.solution);	
 	}
