@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+body {
+	margin:0px;
+	padding:0px;
+	-webkit-user-select:none;
+	-moz-user-select:none;
+	-ms-user-select:none;	
+	user-select:none;
+}
+.page {
+	position:fixed;
+	top:0px;
+	left:0px;
+	width:100%;
+	height:100%;
+	display:none;
+}
+.form {
+	position:absolute;
+	left:50%;
+	top:50%;
+	width:500px;		
+	height:340px;
+	border:1px solid black;
+	border-radius: 5px;
+	font-size:36px;
+	font-family:sans-serif;
+	display:flex;
+	flex-direction: column;
+	align-items: center;
+	padding:20px;
+		
+	-ms-transform: translate(-50%,-50%);
+	-webkit-transform: translate(-50%,-50%);
+	-moz-transform: translate(-50%,-50%);
+	-o-transform: translate(-50%,-50%);
+	transform: translate(-50%,-50%);
+}
+.form div {
+	margin: 20px;
+}
+.form select {
+	font-size:24px;
+	width:auto;
+	background-color:#CCC;
+}
+.form button {
+	font-size:24px;
+	width:200px;
+	border-radius:10px;	
+	background-color:#CCC;
+}
+.content {
+	position:absolute;
+	left:50%;
+	top:50%;
+	-ms-transform: translate(-50%,-50%);
+	-webkit-transform: translate(-50%,-50%);
+	-moz-transform: translate(-50%,-50%);
+	-o-transform: translate(-50%,-50%);
+	transform: translate(-50%,-50%);
+}
+.field {
+	position:absolute;
+	background-color:#DDD;
+	border:1px solid #AAA;
+	cursor:default;
+}
+.exit {
+	position:absolute;
+	background-color:black;	
+}
+.piece  {
+	position:absolute;
+	border-radius:10px;
+	background-color:#926408;
+	z-index:1;
+	box-sizing: border-box;
+	border:1px solid white;
+	transition: top 0.5s, left 0.5s;
+}
+.piece[data-pid="0"] {
+	background-color:#C00;
+}
+
+.commands {
+	position:absolute;
+	height:50px;
+	width:100%;
+	bottom:0px;
+	background-color:white;
+	display:flex;
+	justify-content:center;
+	align-items:center;
+}
+
+button.command {
+	font-size:18px;
+	height: 40px;
+	width:200px;
+	margin-left:50px;
+	margin-right:50px;
+	border-radius:10px;	
+}
+
+</style>
+</head>
+<body>
+	<div class="page" id="params">
+		<div class="form">
+			<div>
+				<span> Number of rows : </span>
+				<select id="rowselect">
+					<option value="4">4</option>
+					<option value="5">5</option>
+					<option value="6" selected>6</option>
+					<option value="7">7</option>
+					<option value="8">8</option>
+					<option value="9">9</option>
+					<option value="10">10</option>
+					<option value="11">11</option>
+					<option value="12">12</option>
+				</select>
+			</div>
+			<div>
+				<span> Number of colums : </span>
+				<select id="colselect">
+					<option value="4">4</option>
+					<option value="5">5</option>
+					<option value="6" selected>6</option>
+					<option value="7">7</option>
+					<option value="8">8</option>
+					<option value="9">9</option>
+					<option value="10">10</option>
+					<option value="11">11</option>
+					<option value="12">12</option>
+				</select>		
+			</div>
+			<div>
+				<span> Exit side : </span>
+				<select id="exitselect">
+					<option value="l">Left</option>
+					<option value="r" selected>Right</option>
+					<option value="t">Top</option>
+					<option value="b">Bottom</option>
+				</select>		
+			</div>
+			<div>
+				<button id="paramsbutton"> OK </button>
+			</div>
+		</div>
+	</div>
+
+	<div class="page" id="game">
+		<div class="content"></div>
+		<div class="commands">
+			<button id="export" class="command">Export</button>
+			<button id="run" class="command">Run</button>
+		</div>
+	</div>
+</body>
+<script>
+
+//***********************************************************
+
+var nrow;
+var ncol;
+var drow;
+var dcol;
+
+var exitside;
+var npiece = 0;
+
+var content = document.querySelector("#game .content");
+
+show_page("params");
+
+document.querySelector("#paramsbutton").addEventListener("click",onparams);
+
+document.querySelector("#export").addEventListener("click",onexport);
+document.querySelector("#run").addEventListener("click",onrun);
+
+
+//***********************************************************
+
+function build_game() {
+	
+	drow = 80;
+	dcol = 80;
+
+	content.style.width = (dcol*ncol)+"px";
+	content.style.height = (drow*nrow)+"px";
+
+	for(var i=0;i<nrow;i++) {
+		for(var j=0;j<ncol;j++) {
+			var el = document.createElement("div");
+			el.dataset.row = i;
+			el.dataset.col = j;
+			el.classList.add("field");	
+			el.style.width = dcol+"px";
+			el.style.height = drow+"px";
+			el.style.top = (drow*i)+"px";
+			el.style.left = (dcol*j)+"px";
+			content.appendChild(el);
+		}
+	}
+
+	document.body.addEventListener("mousedown",ondown);
+	document.body.addEventListener("mouseup",onup);
+}
+
+//***********************************************************
+
+function onparams() {
+	nrow = 1*document.querySelector("#rowselect").value;
+	ncol = 1*document.querySelector("#colselect").value;
+	exitside = document.querySelector("#exitselect").value;
+
+	build_game();
+	show_page("game");
+}
+
+//***********************************************************
+
+function onexport() {
+
+	var text = '';
+	put('{');
+	put('"nrow":'+nrow+',');
+	put('"ncol":'+ncol+',')
+	put('"exit":"'+exitside+'",');
+	put('"pieces":[');
+
+	var pieces = [];
+	var els = document.querySelectorAll(".piece");
+	for(var i=0;i<els.length;i++) {
+		var piece = {};		
+		piece.row = parseInt(els[i].dataset.row);
+		piece.col = parseInt(els[i].dataset.col);
+		piece.len = parseInt(els[i].dataset.len);
+		piece.dir = els[i].dataset.dir;
+		put(JSON.stringify(piece)+',');
+	}
+
+	put(']');
+	put('}');
+
+
+	var w = window.open("");
+	var doc = w.document;
+	doc.write("<pre>"+text+"</pre>");
+
+	function put(s) {
+		text += s+"\n";
+	}
+}
+
+//***********************************************************
+
+function onrun() {
+	alert("Not yet implemented !");
+}
+
+//***********************************************************
+
+
+var row1,col1,row2,col2;
+
+
+//***********************************************************
+
+function ondown(event) {
+	row1 = -1;
+	col1 = -1;
+	var target = event.target;
+	if(target.className.indexOf("field")<0) return;
+	row1 = target.dataset.row;
+	col1 = target.dataset.col;
+}
+
+//***********************************************************
+
+function onup(event) {
+
+	var temp;
+
+	var target = event.target;
+	if(target.className.indexOf("field")<0) return;
+	if(row1<0) return;
+
+	row2 = target.dataset.row;
+	col2 = target.dataset.col;
+
+	if(row2<row1) { temp = row1; row1 = row2; row2 = temp; }	
+	if(col2<col1) { temp = col1; col1 = col2; col2 = temp; }
+	
+	var dr = row2 - row1 + 1;
+	var dc = col2 - col1 + 1;
+	
+	var len = dr > dc ? dr : dc;
+	var dir = (dr>1) ? "v" : "h";
+	
+	var el = document.createElement("div");
+	el.classList.add("piece");
+	el.style.width = ((col2-col1+1)*dcol)+"px";
+	el.style.height = ((row2-row1+1)*drow)+"px";
+	el.style.top = (row1*drow)+"px";
+	el.style.left = (col1*dcol)+"px";
+	el.dataset.row = row1;
+	el.dataset.col = col1;
+	el.dataset.len = len;
+	el.dataset.dir = dir;
+	el.dataset.pid = npiece++;
+	content.appendChild(el);
+
+	if(npiece==1)
+		create_exit(el);
+}
+
+
+//***********************************************************
+
+function create_exit(el) {
+
+	var div = document.createElement("div");
+	div.classList.add("exit");
+
+	switch(exitside) {
+		case "l":
+			div.style.left = "-50px";
+			div.style.width = "40px";
+			div.style.top = (el.dataset.row*drow)+"px";
+			div.style.height = drow+"px";
+			break;
+
+		case "r":
+			div.style.left = (dcol*ncol+10)+"px";
+			div.style.width = "40px";
+			div.style.top = (el.dataset.row*drow)+"px";
+			div.style.height = drow+"px";
+			break;
+
+		case "t":
+			div.style.left = (el.dataset.col*dcol)+"px";
+			div.style.width = dcol+"px";
+			div.style.top = "-50px";
+			div.style.height = "40px";
+			break;
+
+		case "b":
+			div.style.left = (el.dataset.col*dcol)+"px";
+			div.style.width = dcol+"px";
+			div.style.top = (drow*nrow+10)+"px";
+			div.style.height = "40px";
+			break;
+	}
+
+	content.appendChild(div);
+}
+
+//***********************************************************
+
+function show_page(id) {
+	var els = document.querySelectorAll(".page");
+	for(var i=0;i<els.length;i++)
+		els[i].style.display = "none";
+	
+	var el = document.querySelector(".page#"+id);
+	if(el) el.style.display = "block";
+}
+
+//***********************************************************
+
+</script>
+</html>
