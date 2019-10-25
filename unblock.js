@@ -39,6 +39,10 @@ async function run() {
 
 function *rungen() {
 
+	if(sol)
+		if(game.length>sol.length)
+			return;
+
 	// if config already encountered
 	var config = grid.join(",");
 	if(visited[config] && visited[config] <= game.length) return 
