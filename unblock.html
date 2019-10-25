@@ -94,12 +94,12 @@ body {
 	background-color:#d1b056;
 }
 .commands {
+	display:none;
 	position:absolute;
 	height:50px;
 	width:100%;
 	bottom:0px;
 	background-color:white;
-	display:flex;
 	justify-content:center;
 	align-items:center;
 }
@@ -163,9 +163,13 @@ button.command {
 
 	<div class="page" id="game">
 		<div class="content"></div>
-		<div class="commands">
-			<button id="export" class="command">Export</button>
-			<button id="run" class="command">Run</button>
+		<div id="before" class="commands">
+			<button id="export" class="command">Export puzzle</button>
+			<button id="solve" class="command">Solve</button>
+		</div>
+		<div id="after" class="commands">
+			<button id="step" class="command">Step</button>
+			<button id="play" class="command">Play</button>
 		</div>
 	</div>
 </body>
@@ -181,19 +185,25 @@ var dcol;
 var exitside;
 var npiece = 0;
 
-allow_drop();
+var solution;
+var config;
+
 
 var content = document.querySelector("#game .content");
-
-show_page("params");
 
 document.querySelector("#game .content").addEventListener("click",onpiece);
 
 document.querySelector("#paramsbutton").addEventListener("click",onparams);
 
 document.querySelector("#export").addEventListener("click",onexport);
-document.querySelector("#run").addEventListener("click",onrun);
+document.querySelector("#solve").addEventListener("click",onsolve);
 
+document.querySelector("#step").addEventListener("click",step);
+document.querySelector("#play").addEventListener("click",play);
+
+allow_drop();
+
+show_page("params");
 
 //***********************************************************
 
@@ -221,15 +231,17 @@ function allow_drop() {
 	});
 
 	function onread(event) {	
-		var text =  event.target.result;
-		load_json(JSON.parse(text));
+		config = JSON.parse(event.target.result);
+		load_config();
+		show_commands("before");
+		show_page("game");
 	}
 
 }
 
 //***********************************************************
 
-function load_json(config) {
+function load_config() {
 
 	var row1,row2,col1,col2;
 
@@ -237,7 +249,9 @@ function load_json(config) {
 	ncol = config.ncol;
 	exitside = config.exit;		
 
-	build_game(false);
+	content.innerHTML = "";
+
+	build_grid(false);
 
 	for(var k=0;k<config.pieces.length;k++) {	
 		var piece = config.pieces[k];
@@ -273,22 +287,21 @@ function load_json(config) {
 		el.dataset.col = col1;
 		el.dataset.len = len;
 		el.dataset.dir = dir;	
+		el.dataset.pid = k;
 		el.innerHTML = "<span>"+k+"</span>";
 		if(fix)
 			el.dataset.fix =1;
-		el.dataset.pid = npiece++;
 		content.appendChild(el);
 
-		if(npiece==1)
+		if(k==0)
 			create_exit(el);
 	}
 
-	show_page("game");
 }
 
 //***********************************************************
 
-function build_game(active) {
+function build_grid(active) {
 	
 	drow = 80;
 	dcol = 80;
@@ -323,7 +336,9 @@ function onparams() {
 	ncol = 1*document.querySelector("#colselect").value;
 	exitside = document.querySelector("#exitselect").value;
 
-	build_game(true);
+	build_grid(true);
+
+	show_commands("before");
 	show_page("game");
 }
 
@@ -347,17 +362,18 @@ function onpiece(event) {
 
 function onexport() {
 
-	var text = create_json();
+	var text = export_config();
 
 	var w = window.open("");
 	var doc = w.document;
 	doc.write("<pre>\n"+text+"\n</pre>\n");
 
+	config = JSON.parse(text);
 }
 
 //***********************************************************
 
-function create_json() {
+function export_config() {
 
 	var text = '';
 	put('{');
@@ -391,14 +407,16 @@ function create_json() {
 
 //***********************************************************
 
-function onrun() {
+function onsolve() {
 
-	document.querySelector("#run").disabled = true;
+	document.querySelector("#solve").disabled = true;
 
-	var config = create_json();
+	var text = export_config();
+	
+	config = JSON.parse(text);
 
 	var worker = new Worker("unblock.js");
-	worker.postMessage(config);
+	worker.postMessage(text);
 
 	worker.onmessage = function(event) {
 		if(event.data.error)
@@ -406,18 +424,30 @@ function onrun() {
 		else if(event.data.log)
 			console.log(event.data.log);
 		else
-			play(event.data.solution);	
+			show_solution(event.data.solution);	
 	}
 }
 
 //***********************************************************
 
-function play(solution) {
+function show_solution(sol) {
 
+	solution = sol;
+
+	show_commands("after");
+
+}
+
+//***********************************************************
+
+function play() {
+
+	load_config();
+	
 	var els = document.querySelectorAll(".piece");
 
 	var k = -1;
-	step();
+	setTimeout(step,500);
 
 	function step() {
 		k++;
@@ -488,6 +518,8 @@ function onup(event) {
 	
 	var len = dr > dc ? dr : dc;
 	var dir = (dr>1) ? "v" : "h";
+
+	var npiece = document.querySelectorAll(".piece").length;
 	
 	var el = document.createElement("div");
 	el.classList.add("piece");
@@ -499,7 +531,7 @@ function onup(event) {
 	el.dataset.col = col1;
 	el.dataset.len = len;
 	el.dataset.dir = dir;
-	el.dataset.pid = npiece++;
+	el.dataset.pid = npiece;
 	el.innerHTML = "<span>"+el.dataset.pid+"</span>";
 	content.appendChild(el);
 
@@ -557,6 +589,18 @@ function show_page(id) {
 	
 	var el = document.querySelector(".page#"+id);
 	if(el) el.style.display = "block";
+}
+
+//***********************************************************
+
+function show_commands(id) {
+
+	var els = document.querySelectorAll(".commands");
+	for(var i=0;i<els.length;i++)
+		els[i].style.display = "none";
+
+	var el = document.querySelector(".commands#"+id);
+	if(el) el.style.display = "flex";
 }
 
 //***********************************************************
