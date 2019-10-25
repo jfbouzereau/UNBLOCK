@@ -15,6 +15,8 @@ var sol = null;		// solution (shortest game so far)
 var pieces;
 var savedpieces;
 
+var timestart;
+
 if(typeof(require)=="function") {
 	var fs = require("fs");
 	load_game(fs.readFileSync(process.argv[2]));
@@ -30,17 +32,9 @@ if(typeof(require)=="function") {
 
 async function run() {
 
-	var g = rungen();
-	
-	var r;
-
-	while(1) {
-		r = g.next();
-		if(r.done) break;
+	for(var f of rungen())
 		await run();
-	}
 
-	return Promise.resolve(0);
 }
 
 function *rungen() {
@@ -172,9 +166,15 @@ async function load_game(content) {
 
 	post({log:"RUNNING"});
 
+	timestart = new Date().getTime();
+
 	await run();
 
-	post({log:"DONE!"});
+	var timeend = new Date().getTime();
+	
+	var seconds = ((timeend-timestart)/1000)|0;
+
+	post({log:"SOLVED IN "+seconds+" SECONDS"});
 
 	if(!post({solution:sol}))
 		play();
@@ -341,6 +341,8 @@ function post(msg) {
 		return true;
 	}
 	else {
+		if(msg.log)
+			console.log(msg.log);
 		return false;
 	}
 }

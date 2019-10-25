@@ -296,8 +296,22 @@ Example :
 
 ## IN THE BROWSER
 
-The game can be set on the screen :
+In the browser several features are available :
+
+* You can build the puzzle interactively.
+Choose the size of the field, then use the mouse to position
+the various pieces.
+
+* You can export the puzzle just built in the previous step.
+
+* You can import a json file by dropping it to the initial form.
+
+* You can solve the puzzle with the `run` button.
+
+NOTE : Only safari will allow you to run from a local file.
+Others browsers (Chrome, Firefox) cannot load web worker from
+a local file. You will have to open the html file from a web
+server.
 
 ![browser](browser.png)
 
-Clicking the `Run` button will show the moves after a moment!
