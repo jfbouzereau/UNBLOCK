@@ -306,7 +306,9 @@ the various pieces.
 
 * You can import a json file by dropping it to the initial form.
 
-* You can solve the puzzle with the `run` button.
+* You can solve the puzzle with the `solve` button.
+
+* Once the solution is computed, you can play it with the `play` button.
 
 NOTE : Only safari will allow you to run from a local file.
 Others browsers (Chrome, Firefox) cannot load web worker from
