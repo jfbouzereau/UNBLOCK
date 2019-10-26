@@ -326,6 +326,13 @@ some average resolution times in seconds, on an idle macbook air :
 |Safari 13.0 | 3  |200 | 20 |
 |Firefox 70.0| 2  |150 | 15 |
 
+* The stack size in the browser is usually smaller than in node.js.
+A puzzle requiring 2500 levels of recursion would crash in the browser
+with a stack overflow error. To avoid this, a trick using generator
+and async function is used. That way, each level of recursion occurs
+asynchronously in the bottom level of the stack. The drawback is
+that the execution time is somehow longer.
+
 * Safari allows to load a webworker from a local file.
 Others browsers will not. You must for example serve the
 files from a http server started with :
