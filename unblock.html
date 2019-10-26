@@ -64,6 +64,16 @@ body {
 	-o-transform: translate(-50%,-50%);
 	transform: translate(-50%,-50%);
 }
+
+#legend {
+	position:absolute;
+	top:10px;
+	left:50%;
+	transform : translate(-50%,0);
+	font-family:sans-serif;
+	font-size:40px;
+}
+
 .field {
 	position:absolute;
 	background-color:#DDD;
@@ -92,6 +102,9 @@ body {
 }
 .piece.fixed {
 	background-color:#d1b056;
+}
+.piece span {
+	font-family:sans-serif;
 }
 .commands {
 	display:none;
@@ -163,6 +176,7 @@ button.command {
 
 	<div class="page" id="game">
 		<div class="content"></div>
+		<div id="legend"></div>
 		<div id="before" class="commands">
 			<button id="export" class="command">Export puzzle</button>
 			<button id="solve" class="command">Solve</button>
@@ -225,6 +239,9 @@ function allow_drop() {
 		else
 			file = event.dataTransfer.files[0];	
 
+		var legend = document.querySelector("#legend");
+		legend.innerText = file.name;
+		
 		var reader = new FileReader();
 		reader.addEventListener("load",onread);
 		reader.readAsText(file);
@@ -423,6 +440,10 @@ function onsolve() {
 			alert(event.data.error);
 		else if(event.data.log)
 			console.log(event.data.log);
+		else if(event.data.time) {
+			var legend = document.querySelector("#legend");
+			legend.innerText = "Solved in "+event.data.time+" seconds";
+		}
 		else
 			show_solution(event.data.solution);	
 	}
@@ -443,6 +464,8 @@ function show_solution(sol) {
 function play() {
 
 	load_config();
+
+	var legend = document.querySelector("#legend");
 	
 	var els = document.querySelectorAll(".piece");
 
@@ -453,6 +476,8 @@ function play() {
 		k++;
 		if(k>=solution.length) return;
 
+		legend.innerText = ""+(k+1);
+	
 		var pid = parseInt(solution[k]);
 		var dir = solution[k][solution[k].length-1];
 
