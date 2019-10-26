@@ -310,10 +310,26 @@ the various pieces.
 
 * Once the solution is computed, you can play it with the `play` button.
 
-NOTE : Only safari will allow you to run from a local file.
-Others browsers (Chrome, Firefox) cannot load web worker from
-a local file. You will have to open the html file from a web
-server.
-
 ![browser](browser.png)
+
+## TECHNICAL NOTES
+
+* `unblock.js` is used both as a node.js application and
+as a webworker. It must be noted that the javascript engines of
+the various browsers have different performances. Here are
+some average resolution times in seconds, on an idle macbook air :
+
+|Target | 1.json | 1f.json | 601.json |
+|:------|-------:|--------:|---------:|
+|node.js 10.13| 1  | 90 | 10 |
+|Chrome 77.0| 1  | 70 |  8 |
+|Safari 13.0 | 3  |200 | 20 |
+|Firefox 70.0| 2  |150 | 15 |
+
+* Safari allows to load a webworker from a local file.
+Others browsers will not. You must for example serve the
+files from a http server started with :
+```
+python -m SimpleHTTPServer 8000
+```
 
