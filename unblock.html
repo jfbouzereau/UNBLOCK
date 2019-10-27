@@ -199,6 +199,7 @@ var dcol;
 var exitside;
 var npiece = 0;
 
+var istep = -1;
 var solution;
 var config;
 
@@ -212,8 +213,8 @@ document.querySelector("#paramsbutton").addEventListener("click",onparams);
 document.querySelector("#export").addEventListener("click",onexport);
 document.querySelector("#solve").addEventListener("click",onsolve);
 
-document.querySelector("#step").addEventListener("click",step);
-document.querySelector("#play").addEventListener("click",play);
+document.querySelector("#step").addEventListener("click",onstep);
+document.querySelector("#play").addEventListener("click",onplay);
 
 allow_drop();
 
@@ -461,46 +462,69 @@ function show_solution(sol) {
 
 //***********************************************************
 
-function play() {
+function onstep() {
+
+	var legend = document.querySelector("#legend");
+
+	istep ++;
+
+	if(istep>=solution.length) {
+
+		load_config();	
+		legend.innerText = "";
+		istep = -1;
+		return true;
+	}
+
+	var els = document.querySelectorAll(".piece");
+
+	legend.innerText = (istep+1)+"  /  "+(solution.length);
+	
+	var pid = parseInt(solution[istep]);
+	var dir = solution[istep][solution[istep].length-1];
+
+	var el = els[pid];
+	var row = el.dataset.row;
+	var col = el.dataset.col;
+
+	switch(dir) {
+		case "l": col--; break;
+		case "r": col++; break;
+		case "t": row--; break;
+		case "b": row++; break;
+	}
+
+	el.dataset.row = row;
+	el.dataset.col = col;
+
+	el.style.top = (row*drow)+"px";
+	el.style.left = (col*dcol)+"px";
+
+	return istep < solution.length-1;
+}
+
+//***********************************************************
+
+function onplay() {
+
+	var bstep = document.querySelector("#step");
+	var bplay = document.querySelector("#play");
+
+	bstep.disabled = true;
+	bplay.disabled = true;
 
 	load_config();
 
-	var legend = document.querySelector("#legend");
-	
-	var els = document.querySelectorAll(".piece");
+	setTimeout(loop,500);
 
-	var k = -1;
-	setTimeout(step,500);
-
-	function step() {
-		k++;
-		if(k>=solution.length) return;
-
-		legend.innerText = ""+(k+1);
-	
-		var pid = parseInt(solution[k]);
-		var dir = solution[k][solution[k].length-1];
-
-		var el = els[pid];
-		var row = el.dataset.row;
-		var col = el.dataset.col;
-
-		switch(dir) {
-			case "l": col--; break;
-			case "r": col++; break;
-			case "t": row--; break;
-			case "b": row++; break;
+	function loop() {
+		if(onstep())
+			setTimeout(loop,500);
+		else {
+			bstep.disabled = false;
+			bplay.disabled = false;
 		}
-
-		el.dataset.row = row;
-		el.dataset.col = col;
-
-		el.style.top = (row*drow)+"px";
-		el.style.left = (col*dcol)+"px";
-
-		setTimeout(step,500);
-	}
-
+	}	
 }
 
 //***********************************************************
